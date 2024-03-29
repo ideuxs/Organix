@@ -1,22 +1,38 @@
-import { useNavigation } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState }from 'react';
-import { StyleSheet, TextInput, View, Button, Text, TouchableOpacity } from 'react-native';
-import {auth} from '../firebase'
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
+// Importez directement les données JSON
+import cipData from '../resultat.json';
+import cisData from '../resultats.json';
+
+// Fonction pour rechercher le nom du médicament à partir du code CIP
+function findMedicineNameByCIP(cip) {
+  // Rechercher le médicament correspondant dans les données CIP
+  const cipMedicine = cipData.find(item => item.codeCIP === cip);
+
+  // Si le médicament correspondant est trouvé dans les données CIP
+  if (cipMedicine) {
+    // Rechercher le nom du médicament correspondant dans les données CIS
+    const cisMedicine = cisData.find(item => item.code === cipMedicine.code);
+
+    // Si le médicament correspondant est trouvé dans les données CIS
+    if (cisMedicine) {
+      return cisMedicine.nom; // Retourner le nom du médicament
+    }
+  }
+
+  return null; // Retourner null si le médicament n'est pas trouvé
+}
 
 const ScanQr = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('Not yet scanned');
-
-
-  const askForCameraPermission = () => {
-    (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
+  
+  const askForCameraPermission = async () => {
+    const { status } = await BarCodeScanner.requestPermissionsAsync();
+    setHasPermission(status === 'granted');
   };
 
   useEffect(() => {
@@ -25,14 +41,11 @@ const ScanQr = () => {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    // Example: Data might be in the format "01XXXXXXXXXXXXXXXX1122334455"
-    // Extracting only the first 13 characters as CIP
-    const cip = data.substring(3, 16); // Assuming the CIP is 13 characters long
-  
+    const cip = data.substring(3, 16);
     setText(cip);
     console.log('Type : ' + type + '\nCIP : ' + cip);
-
-    console.log(user.displayName);
+    const medicineName = findMedicineNameByCIP(cip);
+    console.log('Nom du médicament :', medicineName);
   };
 
   if (hasPermission === null) {
@@ -52,59 +65,41 @@ const ScanQr = () => {
     );
   }
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.phraseAccueil}>Bienvenue chez ToumaiMarket</Text>
-                <View style={styles.barcode}>
-                    <BarCodeScanner
-                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                        style={{ height: 400, width: 400 }} 
-                    />
-                </View>
-                <Text>{text}</Text>
-                {scanned && (
-                <Button title={'Scanner à nouveau ?'} onPress={() => setScanned(false)} color="tomato" />
-                )}
-            {/*<TouchableOpacity style={styles.button} onPress={handleSignOut}>
-                <Text style={styles.deco}>Se deconnecter</Text>
-                </TouchableOpacity>*/}
+  return (
+    <View style={styles.container}>
+      <Text style={styles.phraseAccueil}>Bienvenue chez ToumaiMarket</Text>
+      <View style={styles.barcode}>
+        <BarCodeScanner
+          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          style={{ height: 400, width: 400 }}
+        />
       </View>
-    )
-  
-}
+      <Text>{text}</Text>
+      {scanned && (
+        <Button title={'Scanner à nouveau ?'} onPress={() => setScanned(false)} color="tomato" />
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    phraseAccueil: {
-      fontSize: 25,
-    },
-    deco: {
-      color: 'white',
-      fontWeight: '700',
-      fontSize: 16,
-    },
-    button: {
-      alignItems: 'center',
-      width: '50%',
-      backgroundColor: '#0782F9',
-      padding: 15,
-      borderRadius: 10,
-      marginTop: 40,
-    },
-    barcode: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 300,
-      width: 300,
-      overflow: 'hidden',
-      borderRadius: 30,
-      backgroundColor: 'tomato',
-    }
-  });
-
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  phraseAccueil: {
+    fontSize: 25,
+  },
+  barcode: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 300,
+    width: 300,
+    overflow: 'hidden',
+    borderRadius: 30,
+    backgroundColor: 'tomato',
+  },
+});
 
 export default ScanQr;
