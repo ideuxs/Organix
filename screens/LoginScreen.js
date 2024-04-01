@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { auth } from '../firebase'; // Assurez-vous que le chemin d'import est correct
+import { Image } from 'react-native';
+
+import googleLogo from '../images/google.png';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
@@ -48,6 +51,15 @@ const LoginScreen = () => {
         }
     };
 
+    const handleGoogleLogin = () => {
+        auth.signInWithPopup(googleAuthProvider).then((result) => {
+            // Handle Google login success
+        }).catch((error) => {
+            // Handle Google login errors
+        });
+    };
+
+
     const goToSignUp = () => {
         navigation.navigate('Register');
     };
@@ -58,9 +70,13 @@ const LoginScreen = () => {
 
     return (
         <View style={styles.div}>
+            <Image source={require('../images/logo.png')} style={styles.logo} />
             <View style={styles.bienvenue}>
                 <Text style={styles.intro}>
-                    Bienvenue dans la page de connexion !
+                    Bienvenue chez Solutions Organix !
+                </Text>            
+                <Text style={styles.intro1}>
+                    Votre partenaire de santé
                 </Text>
             </View>
             <TextInput
@@ -79,55 +95,49 @@ const LoginScreen = () => {
             <TouchableOpacity style={styles.bouton} onPress={handleLogin}>
                 <Text style={styles.txt}>Se connecter</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.boutonInscr} onPress={goToSignUp}>
-                <Text style={styles.text}>S'inscrire</Text>
+
+            <TouchableOpacity style={styles.googleSignInButton} onPress={handleGoogleLogin}>
+                <Text style={styles.googleSignInText}>Se connecter avec </Text>
+                <Image source={googleLogo} style={styles.googleLogo} />
             </TouchableOpacity>
+
+            <Text style={styles.signupTxt} onPress={goToSignUp}>
+                Pas de compte ? Inscrivez-vous
+            </Text>
             <TouchableOpacity style={styles.boutonMdp} onPress={passwordForgot}>
                 <Text style={styles.mdpTxt}>Mot de passe oublié ?</Text>
             </TouchableOpacity>
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     div: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: '#6c2919',
+        backgroundColor: '#011e36', // Dark blue background color from your logo
         alignItems: 'center'
     },
     bouton: {
-        backgroundColor: 'black',
+        backgroundColor: '#38d2aa', // Button background color from your logo
         padding: 10,
         width: 160,
         alignItems: 'center',
         borderRadius: 10,
-        marginLeft: 40,
-        marginTop: 20,
-        borderColor: '#0782F9',
+        // Removed marginLeft for center alignment
     },
-    boutonInscr: {
-        borderColor: '#0782F9',
-        padding: 10,
-        marginLeft: 40,
-        borderRadius: 10,
-        backgroundColor: 'white',
-        width: 160,
-        marginTop: 15,
-        alignItems: 'center',
-    },
+
     boutonMdp: {
-        marginLeft: 65,
-        marginTop: 25,
+        marginTop: 3,
+        // Removed marginLeft for center alignment
     },
     mdpTxt: {
-        color: 'white',
+        color: '#03a770', // Text color from your logo
+    },
+    signupTxt: {
+        color: '#03a770', // White text color for clickable text
     },
     txt: {
-        color: 'white',
-    },
-    text: {
-        color: 'black',
+        color: '#ffffff', // White text color for the buttons
     },
     email: {
         width: 245,
@@ -136,7 +146,7 @@ const styles = StyleSheet.create({
         marginBottom: 25,
         borderBottomLeftRadius: 14,
         borderTopRightRadius: 14,
-        backgroundColor: 'white'
+        backgroundColor: '#ffffff', // White background for input fields
     },
     mdp: {
         width: 245,
@@ -145,18 +155,54 @@ const styles = StyleSheet.create({
         marginBottom: 25,
         borderBottomLeftRadius: 14,
         borderTopRightRadius: 14,
-        backgroundColor: 'white'
+        backgroundColor: '#ffffff', // Same as above for consistency
     },
     bienvenue: {
-        marginBottom: 80,
-        width: 210,
+        marginBottom: 25,
+        width: 350,
+        // Removed marginLeft for center alignment
     },
     intro: {
-        fontSize: 27,
+        fontSize: 35,
         textAlign: 'center',
-        color: 'white',
+        color: '#03a770', // Text color from your logo
         fontWeight: 'bold',
-    }
+        lineHeight: 35,
+    },
+    intro1: {
+        fontSize: 17,
+        textAlign: 'center',
+        color: '#ffffff', // Text color from your logo
+        fontWeight: 'lighter',
+        fontStyle: 'italic',
+        marginTop: 2,
+    },
+    logo: {
+        height: 120, // Adjust the size as needed
+        width: 120, // Adjust the size as needed
+        resizeMode: 'contain', // This makes sure the logo is scaled properly
+        alignSelf: 'center', // This aligns the logo to the center
+    },
+    googleSignInButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#38d2aa', // White background for the button
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    googleLogo: {
+        width: 18,
+        height: 18,
+        resizeMode: 'contain',
+        marginLeft: 5,
+    },
+    googleSignInText: {
+        color: '#ffffff', // A gray color for the text, you can change it as needed
+    },
 });
+
+
 
 export default LoginScreen;
