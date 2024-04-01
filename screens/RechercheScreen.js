@@ -7,15 +7,18 @@ const RechercheScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.intro}>
+        Choisissez la méthode pour retrouver votre médicament : 
+      </Text>     
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('Scan')}>
-        <Text style={styles.buttonText}>Scanner un QR Code</Text>
+        <Text style={styles.buttonText}>Recherche via DataMatrix</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('Code')}>
-        <Text style={styles.buttonText}>Rechercher par Code</Text>
+        <Text style={styles.buttonText}>Recherche via code CIP</Text>
       </TouchableOpacity>
     </View>
   );
@@ -26,19 +29,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#011e36', // Matching dark blue background color
   },
   button: {
     width: '80%',
     padding: 20,
     borderRadius: 10,
-    backgroundColor: '#007bff',
+    backgroundColor: '#38d2aa', // Button background color matching the theme
     marginBottom: 20,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
+    color: '#ffffff', // White text for better readability on buttons
+    fontSize: 20,
+  },
+  intro: {
+    fontSize: 25,
+    textAlign: 'center',
+    color: '#03a770', // Text color from your logo
+    fontWeight: 'bold',
+    lineHeight: 25,
+    marginBottom: 50,
   },
 });
 
