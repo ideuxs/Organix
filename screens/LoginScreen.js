@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from '../firebase'; // Assurez-vous que le chemin d'import est correct
+import { auth, googleProvider } from '../firebase'; // Assurez-vous que le chemin d'import est correct
 import { Image } from 'react-native';
+import { getDatabase, ref, set } from "firebase/database";
 
 import googleLogo from '../images/google.png';
 
@@ -52,12 +53,29 @@ const LoginScreen = () => {
     };
 
     const handleGoogleLogin = () => {
-        auth.signInWithPopup(googleAuthProvider).then((result) => {
-            // Handle Google login success
-        }).catch((error) => {
-            // Handle Google login errors
-        });
-    };
+        auth.signInWithPopup(googleProvider)
+          .then(result => {
+            const user = result.user;
+            console.log('Connected with Google:', user.email);
+      
+            // Extraire les informations de l'utilisateur
+            const { displayName, email } = user;
+            const [firstName, lastName] = displayName.split(' ');
+      
+            // Mettre à jour le profil de l'utilisateur avec le nom complet s'il n'est pas défini
+            if (!user.displayName) {
+              user.updateProfile({
+                displayName: `${firstName} ${lastName}`
+              });
+            }
+      
+            // Écrire les informations de l'utilisateur dans la base de données
+            writeUserData(user.uid, firstName, email);
+      
+            navigation.replace('Home');
+          })
+          .catch(error => alert(error.message));
+      };
 
 
     const goToSignUp = () => {
@@ -110,6 +128,16 @@ const LoginScreen = () => {
         </View>
     );
 };
+
+function writeUserData(userId, firstName, email) {
+    const db = getDatabase();
+    set(ref(db, 'users/' + userId), {
+      prenom: firstName,
+      email: email,
+      age : 0
+    });
+  }
+
 const styles = StyleSheet.create({
     div: {
         flex: 1,
