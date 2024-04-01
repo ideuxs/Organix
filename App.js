@@ -23,7 +23,7 @@ const Tab = createBottomTabNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: true }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="Home" component={TabNav}/>
@@ -43,7 +43,7 @@ const TabNav = () => (
     <Tab.Screen name="Accueil" component={AccueilScreen} 
       options={{
         title:"Accueil",
-        headerShown:false,
+        headerShown:true,
         tabBarIcon: ({ focused }) => (
           <Image
             source={require('./images/accueil.png')}
@@ -54,7 +54,7 @@ const TabNav = () => (
     <Tab.Screen name="Rechercher" component={RechercheScreen} 
       options={{
         title:"Signaler",
-        headerShown:false, 
+        headerShown:true, 
         tabBarIcon: ({ focused }) => (
           <Image
             source={require('./images/signaler.png')}
@@ -65,7 +65,7 @@ const TabNav = () => (
     <Tab.Screen name="User" component={Profil} 
       options={{
         title:"Profil", 
-        headerShown:false,
+        headerShown:true,
         tabBarIcon: ({ focused }) => (
           <Image
             source={require('./images/utilisateur.png')}
@@ -81,7 +81,7 @@ const AdminTabNav = () => (
     <Tab.Screen name="Accueil" component={AccueilAdmin} 
       options={{
         title:"Accueil",
-        headerShown:false,
+        headerShown:true,
         tabBarIcon: ({ focused }) => (
           <Image
             source={require('./images/accueil.png')}
@@ -92,7 +92,7 @@ const AdminTabNav = () => (
     <Tab.Screen name="Analyse" component={AnalyseAdmin}
       options={{
         title:"Analyse",
-        headerShown:false,
+        headerShown:true,
         tabBarIcon: ({ focused }) => (
           <Image
             source={require('./images/analyse.png')}
@@ -103,7 +103,7 @@ const AdminTabNav = () => (
     <Tab.Screen name="Signalement" component={SignalementAdmin}
       options={{
         title:"Signalement",
-        headerShown:false,
+        headerShown:true,
         tabBarIcon: ({ focused }) => (
           <Image
             source={require('./images/signalements.png')}
