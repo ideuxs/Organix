@@ -3,12 +3,14 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState }from 'react';
 import { StyleSheet, TextInput, View, Button, Text, TouchableOpacity } from 'react-native';
 import {auth} from '../firebase'
+import { getDatabase, ref, set } from "firebase/database";
 
 const Register = () => {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [name, setName] = useState('');
+    const [age, setAge] = useState('');
 
     const navigation = useNavigation()
 
@@ -28,7 +30,9 @@ const Register = () => {
 
         try {
             await auth.createUserWithEmailAndPassword(email, password);
+            
             const user = auth.currentUser;
+            writeUserData(user.uid, name, email, age);
             // Stocker le nom dans le profil utilisateur
             await user.updateProfile({
               displayName: name,
@@ -60,6 +64,11 @@ const Register = () => {
             onChangeText={(text) => setName(text)}
         />
         <TextInput style={styles.email}
+            placeholder="Votre age"
+            value={age}
+            onChangeText={(text) => setAge(text)}
+        />
+        <TextInput style={styles.email}
         placeholder="Email"
         value={email}
         onChangeText={(text) => setEmail(text)}
@@ -81,7 +90,16 @@ const Register = () => {
     )
 }
 
-export default Register;
+function writeUserData(userId, firstName, email, age) {
+    const db = getDatabase();
+    set(ref(db, 'users/' + userId), {
+      prenom: firstName,
+      email: email, 
+      age: age
+    });
+  }
+
+
 
 const styles = StyleSheet.create({
     div: {
@@ -155,3 +173,5 @@ const styles = StyleSheet.create({
     }
 
 });
+
+export default Register;

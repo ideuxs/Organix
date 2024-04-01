@@ -8,23 +8,25 @@ const Profil= () => {
     const user = auth.currentUser;
 
     const confirmLogout = () => {
-        Alert.alert(
-            'Se déconnecter',
-            'Êtes-vous sûr de vouloir vous déconnecter ?',
-            [
-                {
-                    text: 'Annuler',
-                    onPress: () => {},
-                    style: 'cancel',
-                },
-                {
-                    text: 'Confirmer',
-                    onPress: () => {
-                        handleSignOut();
-                    },
-                },
-            ],
-        );
+        // Alert.alert(
+        //     'Se déconnecter',
+        //     'Êtes-vous sûr de vouloir vous déconnecter ?',
+        //     [
+        //         {
+        //             text: 'Annuler',
+        //             onPress: () => {},
+        //             style: 'cancel',
+        //         },
+        //         {
+        //             text: 'Confirmer',
+        //             onPress: () => {
+        //                 handleSignOut();
+        //             },
+        //         },
+        //     ],
+        // );
+
+        auth.signOut().then(() => navigation.replace('Login'));
     };
 
     const navigation = useNavigation();

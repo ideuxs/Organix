@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 import firebase from "firebase/compat";
 import 'firebase/auth';
+import 'firebase/compat/database';
+
 
 // ... (importez d'autres modules Firebase dont vous avez besoin)
 
@@ -9,18 +11,29 @@ import 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDjwqV9GOjJanZeoeEZE0MFUlcilP3dqw0",
-  authDomain: "fir-auth-f1619.firebaseapp.com",
-  projectId: "fir-auth-f1619",
-  storageBucket: "fir-auth-f1619.appspot.com",
-  messagingSenderId: "433605162884",
-  appId: "1:433605162884:web:93f0ce081edc769e18cfd1"
+  apiKey: "AIzaSyBZM84lkKPO0i7l1tAdi46Qr_s89aLbEDg",
+  authDomain: "projet-organix.firebaseapp.com",
+  databaseURL: "https://projet-organix-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "projet-organix",
+  storageBucket: "projet-organix.appspot.com",
+  messagingSenderId: "934454644252",
+  appId: "1:934454644252:web:2004b91fb0e1afbec1d9d9"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
+// Initialisation de l'application Firebase
+let app;
+if (firebase.apps.length === 0) {
+    app = firebase.initializeApp(firebaseConfig);
+} else {
+    app = firebase.app();
+}
 
-
+// Initialisation des services d'authentification et de base de données
 const auth = firebase.auth();
+const database = firebase.database();
 
-export {auth };
+// Configuration de l'authentification Google
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+// Exportation des services pour une utilisation dans d'autres fichiers
+export { auth, database, googleProvider };
