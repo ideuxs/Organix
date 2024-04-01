@@ -1,95 +1,131 @@
-import { Text, View, StyleSheet, TouchableOpacity,Alert} from 'react-native'
-import React, { Component } from 'react'
-import { useNavigation } from '@react-navigation/native';
-import { auth } from '../firebase';
+import React, { useState, useEffect } from 'react';
+import { View, Alert, ScrollView } from 'react-native';
+import { TextInput, Button, Text, Provider as PaperProvider, DefaultTheme, Appbar } from 'react-native-paper';
+import { auth } from '../firebase'; // Assurez-vous que auth est bien initialisé ici
+import { getDatabase, ref, onValue } from "firebase/database"; // Import modulaire pour la database
 
+// Définition du thème vert écolo
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#4CAF50', // Vert
+    accent: '#8BC34A', // Vert clair
+    background: '#E8F5E9', // Vert très clair
+    text: '#388E3C', // Vert foncé
+    surface: '#A5D6A7', // Vert intermédiaire
+  },
+  roundness: 8, // Augmente le roundness pour tous les composants
+};
 
-const Profil= () => {
-    const user = auth.currentUser;
+const Profil = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [ecoCoins, setEcoCoins] = useState(0);
 
-    const confirmLogout = () => {
-        // Alert.alert(
-        //     'Se déconnecter',
-        //     'Êtes-vous sûr de vouloir vous déconnecter ?',
-        //     [
-        //         {
-        //             text: 'Annuler',
-        //             onPress: () => {},
-        //             style: 'cancel',
-        //         },
-        //         {
-        //             text: 'Confirmer',
-        //             onPress: () => {
-        //                 handleSignOut();
-        //             },
-        //         },
-        //     ],
-        // );
+  useEffect(() => {
+    if (auth.currentUser) {
+      const userId = auth.currentUser.uid;
+      const db = getDatabase();
+      const userRef = ref(db, `/users/${userId}`);
+      const unsubscribe = onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.hasOwnProperty('ecoCoins')) {
+          setEcoCoins(data.ecoCoins);
+        }
+      });
 
-        auth.signOut().then(() => navigation.replace('Login'));
-    };
+      // Nettoyage de l'abonnement
+      return () => unsubscribe();
+    }
+  }, []);
 
-    const navigation = useNavigation();
-    const handleSignOut = () => {
-    auth
-      .signOut()
-      .then(() => {
-        navigation.replace('Login');
-      })
-      .catch((error) => alert(error.message));
+  const updateEmail = () => {
+    if (auth.currentUser) {
+      auth.currentUser.updateEmail(email).then(() => {
+        Alert.alert('Succès', 'Email mis à jour avec succès.');
+      }).catch((error) => {
+        Alert.alert('Erreur', error.message);
+      });
+    }
   };
-    return (
-      <View style={styles.container}>
-        <View style = {styles.phraseAccueil}>
-            <Text style = {styles.perso}>Bonjour, {user.displayName} 😊</Text>
+
+  const updatePassword = () => {
+    if (auth.currentUser) {
+      auth.currentUser.updatePassword(password).then(() => {
+        Alert.alert('Succès', 'Mot de passe mis à jour avec succès.');
+      }).catch((error) => {
+        Alert.alert('Erreur', error.message);
+      });
+    }
+  };
+
+  const handleSignOut = () => {
+    auth.signOut().then(() => {
+      // Redirige l'utilisateur vers la page de connexion après la déconnexion
+      navigation.navigate('Login'); // Assurez-vous que 'Login' est le nom correct de votre écran de connexion
+    }).catch((error) => {
+      Alert.alert('Erreur', error.message);
+    });
+  };
+
+  return (
+    <PaperProvider theme={theme}>
+      <Appbar.Header>
+        <Appbar.Content title="Mon Profil" />
+      </Appbar.Header>
+      <ScrollView style={{ flex: 1 }}>
+        <View style={{ padding: 20, backgroundColor: theme.colors.background }}>
+          <Text variant="headlineMedium" style={{ marginBottom: 20, color: theme.colors.text, textAlign: 'center' }}>
+            Gérez votre compte
+          </Text>
+          <TextInput
+            label="Nouvel Email"
+            value={email}
+            onChangeText={setEmail}
+            mode="outlined"
+            style={{ marginBottom: 10 }}
+            left={<TextInput.Icon name="email" />}
+          />
+          <Button
+            mode="contained"
+            onPress={updateEmail}
+            style={{ marginBottom: 10 }}
+            icon="update"
+            color={theme.colors.accent}
+          >
+            Mettre à jour l'email
+          </Button>
+          <TextInput
+            label="Nouveau Mot de Passe"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            mode="outlined"
+            style={{ marginBottom: 10 }}
+            left={<TextInput.Icon name="lock" />}
+          />
+          <Button
+            mode="contained"
+            onPress={updatePassword}
+            icon="key"
+            color={theme.colors.accent}
+          >
+            Mettre à jour le mot de passe
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleSignOut}
+            icon="logout"
+            color={theme.colors.primary}
+            style={{ marginTop: 20 }}
+          >
+            Se déconnecter
+          </Button>
         </View>
-        <View style = {styles.deco}>
-        <TouchableOpacity style={styles.button} onPress={confirmLogout}>
-            <Text style={{color:'white'}}>Se deconnecter</Text>
-      </TouchableOpacity>
-        </View>
-      </View>
-
-    )
-  
-}
-
-const styles = StyleSheet.create ({
-    container:{
-        flex: 1,
-        backgroundColor:'grey',
-    },
-    phraseAccueil:{
-        flexDirection: 'row', // Arrange elements horizontally
-        justifyContent: 'flex-start', // Align content to the left
-        alignItems: 'center', // Align vertically
-        width: '100%', // Span the full width
-        padding: 10, // Add some padding
-        backgroundColor: '#f0f0f0',
-        marginTop:55,
-    },
-    perso:{
-        fontSize: 40,
-        fontWeight: 'bold',
-        
-    },
-    deco:{
-        position: 'absolute', // Position absolutely to fix at bottom
-        bottom: 0, // Anchor bottom edge to screen bottom
-        left: 0, // Anchor left edge to screen left
-        right: 0, // Anchor right edge to screen right
-        justifyContent: 'center', // Center button vertically
-        alignItems: 'center', // Center button horizontally (optional)
-        padding: 10,
-    },
-    button: {
-        alignItems: 'center',
-        width: '50%',
-        backgroundColor: '#0782F9',
-        padding: 15,
-        borderRadius: 10,
-    },
-});
-
+      </ScrollView>
+    </PaperProvider>
+  );
+};
 
 export default Profil;
