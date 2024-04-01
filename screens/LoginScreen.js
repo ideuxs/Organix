@@ -1,130 +1,208 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, Button, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from '../firebase'; // Ensure the correct path
-import { getDatabase, ref, set } from "firebase/database";
+import { auth } from '../firebase'; // Assurez-vous que le chemin d'import est correct
 import { Image } from 'react-native';
 
+import googleLogo from '../images/google.png';
 
-const Register = () => {
+const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
-    const [age, setAge] = useState('');
 
     const navigation = useNavigation();
 
-    const signIn = () => {
-        navigation.navigate('Login');
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if (user) {
+                // Détermine si l'utilisateur est l'admin pour rediriger vers la page spécifique
+                if (user.email === "admin@example.com") {
+                    navigation.navigate("HomeAdmin");
+                } else {
+                    navigation.navigate("Home");
+                }
+            }
+        });
+        return unsubscribe;
+    }, [navigation]);
+
+    const handleLogin = () => {
+        if (email === 'travailsaefirebase@gmail.com' && password === 'adminOrganix') {
+            // Redirection vers la page HomeAdmin pour les identifiants "admin"/"admin"
+            navigation.navigate('Admin', { screen: 'AccueilAdmin' });
+        } else {
+            // Connexion pour les autres utilisateurs via Firebase
+            auth.signInWithEmailAndPassword(email, password)
+                .then(userCredentials => {
+                    const user = userCredentials.user;
+                    console.log("Connecté avec : ", user.email);
+                    // Si les identifiants ne sont pas ceux de l'admin, redirection vers "Home"
+                    navigation.navigate("Home");
+                })
+                .catch(error => {
+                    if (error.code === 'auth/user-not-found') {
+                        alert('Aucun utilisateur trouvé pour cet email.');
+                    } else if (error.code === 'auth/wrong-password') {
+                        alert('Mot de passe incorrect pour cet email.');
+                    } else {
+                        alert(error.message);
+                    }
+                });
+        }
     };
 
-    const handleSignUp = async () => {
-        try {
-            await auth.createUserWithEmailAndPassword(email, password);
-            const user = auth.currentUser;
-            writeUserData(user.uid, name, email, age);
-            await user.updateProfile({
-              displayName: name,
-            });
-        } catch (error) {
-            console.error(error);
-            alert("Erreur lors de l'inscription. Veuillez réessayer.");
-        }
+    const handleGoogleLogin = () => {
+        auth.signInWithPopup(googleAuthProvider).then((result) => {
+            // Handle Google login success
+        }).catch((error) => {
+            // Handle Google login errors
+        });
+    };
+
+
+    const goToSignUp = () => {
+        navigation.navigate('Register');
+    };
+
+    const passwordForgot = () => {
+        navigation.navigate('Forgot');
     };
 
     return (
         <View style={styles.div}>
             <Image source={require('../images/logo.png')} style={styles.logo} />
-            <Text style={styles.intro}>
-                Bienvenue dans la page d'inscription !
-            </Text>
+            <View style={styles.bienvenue}>
+                <Text style={styles.intro}>
+                    Bienvenue chez Solutions Organix !
+                </Text>            
+                <Text style={styles.intro1}>
+                    Votre partenaire de santé
+                </Text>
+            </View>
             <TextInput
-                style={styles.input1}
-                placeholder="Votre nom"
-                value={name}
-                onChangeText={setName}
-            />
-            <TextInput
-                style={styles.input1}
-                placeholder="Votre age"
-                value={age}
-                onChangeText={setAge}
-            />
-            <TextInput
-                style={styles.input1}
+                style={styles.email}
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
             />
             <TextInput
-                style={styles.input1}
+                style={styles.mdp}
                 placeholder="Mot de passe"
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
             />
-            <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-                <Text style={styles.buttonText}>S'inscrire</Text>
+            <TouchableOpacity style={styles.bouton} onPress={handleLogin}>
+                <Text style={styles.txt}>Se connecter</Text>
             </TouchableOpacity>
-            <Text style={styles.switchText} onPress={signIn}>
-                Déjà un compte ? Se connecter
+
+            <TouchableOpacity style={styles.googleSignInButton} onPress={handleGoogleLogin}>
+                <Text style={styles.googleSignInText}>Se connecter avec </Text>
+                <Image source={googleLogo} style={styles.googleLogo} />
+            </TouchableOpacity>
+
+            <Text style={styles.signupTxt} onPress={goToSignUp}>
+                Pas de compte ? Inscrivez-vous
             </Text>
+            <TouchableOpacity style={styles.boutonMdp} onPress={passwordForgot}>
+                <Text style={styles.mdpTxt}>Mot de passe oublié ?</Text>
+            </TouchableOpacity>
         </View>
     );
 };
-
-function writeUserData(userId, firstName, email, age) {
-    const db = getDatabase();
-    set(ref(db, 'users/' + userId), {
-      name: firstName,
-      email: email,
-      age: age,
-    });
-}
-
 const styles = StyleSheet.create({
     div: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: '#011e36', // Background color to match LoginScreen
-        alignItems: 'center',
+        backgroundColor: '#011e36', // Dark blue background color from your logo
+        alignItems: 'center'
     },
-    input1: {
-        width: 245,
-        height: 45,
-        textAlign: 'center',
-        marginBottom: 25,
-        backgroundColor: '#ffffff', // White background for input fields
-        borderBottomRightRadius: 14,
-        borderTopLeftRadius: 14,
-    },
-    button: {
-        backgroundColor: '#38d2aa', // Button background color to match LoginScreen
+    bouton: {
+        backgroundColor: '#38d2aa', // Button background color from your logo
         padding: 10,
         width: 160,
         alignItems: 'center',
         borderRadius: 10,
+        // Removed marginLeft for center alignment
     },
-    buttonText: {
-        color: '#ffffff', // White text color for buttons
+
+    boutonMdp: {
+        marginTop: 5,
+        // Removed marginLeft for center alignment
+    },
+    mdpTxt: {
+        color: '#03a770', // Text color from your logo
+    },
+    signupTxt: {
+        color: '#03a770', // White text color for clickable text
+    },
+    txt: {
+        color: '#ffffff', // White text color for the buttons
+    },
+    email: {
+        width: 245,
+        height: 45,
+        textAlign: 'center',
+        marginBottom: 25,
+        borderBottomLeftRadius: 14,
+        borderTopRightRadius: 14,
+        backgroundColor: '#ffffff', // White background for input fields
+    },
+    mdp: {
+        width: 245,
+        height: 45,
+        textAlign: 'center',
+        marginBottom: 25,
+        borderBottomLeftRadius: 14,
+        borderTopRightRadius: 14,
+        backgroundColor: '#ffffff', // Same as above for consistency
+    },
+    bienvenue: {
+        marginBottom: 25,
+        width: 350,
+        // Removed marginLeft for center alignment
     },
     intro: {
-        marginBottom: 20,
-        fontSize: 20,
+        fontSize: 35,
         textAlign: 'center',
-        color: '#03a770', // Text color to match LoginScreen
+        color: '#03a770', // Text color from your logo
         fontWeight: 'bold',
+        lineHeight: 35,
     },
-    switchText: {
-        color: '#03a770', // Text color to match LoginScreen, for switching between login and registration
-        marginTop: 15,
+    intro1: {
+        fontSize: 17,
+        textAlign: 'center',
+        color: '#ffffff', // Text color from your logo
+        fontWeight: 'lighter',
+        fontStyle: 'italic',
+        marginTop: 2,
     },
     logo: {
         height: 120, // Adjust the size as needed
         width: 120, // Adjust the size as needed
         resizeMode: 'contain', // This makes sure the logo is scaled properly
         alignSelf: 'center', // This aligns the logo to the center
-    }
+    },
+    googleSignInButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#38d2aa', // White background for the button
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    googleLogo: {
+        width: 18,
+        height: 18,
+        resizeMode: 'contain',
+        marginLeft: 5,
+    },
+    googleSignInText: {
+        color: '#ffffff', // A gray color for the text, you can change it as needed
+    },
 });
 
-export default Register;
+
+
+export default LoginScreen;
