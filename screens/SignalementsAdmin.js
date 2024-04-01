@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Alert, TouchableOpacity } from 'react-native';
-import { getAuth } from 'firebase/auth';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from '../firebase';
 
 
 const SignalementAdmin = () => {
@@ -59,43 +57,7 @@ const SignalementAdmin = () => {
     });
   }, []);
 
-  const handleSignOut = () => {
-    auth
-      .signOut()
-      .then(() => {
-        navigation.replace('Login');
-      })
-      .catch((error) => alert(error.message));
-  };
 
-  const confirmLogout = () => {
-    /*Alert.alert(
-        'Se déconnecter',
-        'Êtes-vous sûr de vouloir vous déconnecter ?',
-        [
-            {
-                text: 'Annuler',
-                onPress: () => {},
-                style: 'cancel',
-            },
-            {
-                text: 'Confirmer',
-                onPress: () => {
-                    handleSignOut();
-                },
-            },
-        ],
-    );*/
-    handleSignOut();
-    };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Chargement des signalements...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -111,11 +73,6 @@ const SignalementAdmin = () => {
         )}
         style={styles.list}
       />
-      <View style={styles.deco}>
-        <TouchableOpacity style={styles.button} onPress={confirmLogout}>
-          <Text style={{color:'white'}}>Se déconnecter</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -123,28 +80,16 @@ const SignalementAdmin = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e8f5e9',
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#e8f5e9',
-  },
-  loadingText: {
-    fontSize: 20,
-    color: '#388e3c',
+    backgroundColor: '#011e36', // Consistent dark blue background
   },
   list: {
-    marginTop:40,
+    marginTop: 20, // Adjusted to match other pages' margins
   },
   itemContainer: {
-    paddingVertical: 20,
-    paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#c8e6c9',
-    backgroundColor: 'white',
-    marginVertical: 8,
+    paddingVertical: 10, // Reduced padding for a smaller height
+    paddingHorizontal: 10, // Optionally reduced for less width
+    backgroundColor: '#38d2aa', // Using the accent color from the LoginScreen for consistency
+    marginVertical: 4, // Reduced margin for closer spacing between items
     marginHorizontal: 10,
     borderRadius: 5,
     elevation: 3,
@@ -157,17 +102,8 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-    color: '#2e7d32',
-    marginBottom: 5,
-  },
-  deco: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: '#1976d2',
-    padding: 10,
-    borderRadius: 5,
+    color: '#ffffff', // White text for better contrast and consistency
+    marginBottom: 3, // Slightly reduced spacing between lines of text
   },
 });
 
