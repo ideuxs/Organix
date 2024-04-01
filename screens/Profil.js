@@ -3,19 +3,21 @@ import { View, Alert, ScrollView } from 'react-native';
 import { TextInput, Button, Text, Provider as PaperProvider, DefaultTheme, Appbar } from 'react-native-paper';
 import { auth } from '../firebase'; // Assurez-vous que auth est bien initialisé ici
 import { getDatabase, ref, onValue } from "firebase/database"; // Import modulaire pour la database
+import { Image } from 'react-native';
 
+import logoImage from '../images/photo1.png';
 // Définition du thème vert écolo
 const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#03a770', // Couleur principale, bleu foncé
-    accent: '#38d2aa', // Couleur d'accent, vert
-    background: '#011e36', // Couleur de fond, bleu foncé
-    text: '#ffffff', // Couleur du texte, blanc
-    surface: '#011e36', // Couleur de la surface, blanc
+    primary: '#03a770',
+    accent: '#38d2aa', 
+    background: '#011e36', 
+    text: '#ffffff', 
+    surface: '#011e36', 
   },
-  roundness: 5, // Augmente le roundness pour tous les composants
+  roundness: 2, // Augmente le roundness pour tous les composants
 };
 
 
@@ -68,9 +70,9 @@ const Profil = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <ScrollView style={{ flex: 1 }}>
-        <View style={{ padding: 20, backgroundColor: theme.colors.background }}>
-          <Text variant="headlineMedium" style={{ marginBottom: 20, color: theme.colors.text, textAlign: 'center' }}>
+      <ScrollView style={{ flex: 1 , backgroundColor: theme.colors.background }}>
+        <View style={{ marginTop: 20, padding: 20, backgroundColor: theme.colors.background }}>
+          <Text variant="headlineMedium" style={{ marginTop: 10, marginBottom: 20, color: '#03a770',fontWeight: 'bold' ,textAlign: 'center' }}>
             Gérez votre compte
           </Text>
           <TextInput
@@ -78,8 +80,7 @@ const Profil = () => {
             value={email}
             onChangeText={setEmail}
             mode="outlined"
-            style={{ marginBottom: 10 }}
-            left={<TextInput.Icon name="email" />}
+            style={{ marginTop: 20, marginBottom: 10}}
           />
           <Button
             mode="contained"
@@ -96,8 +97,7 @@ const Profil = () => {
             onChangeText={setPassword}
             secureTextEntry
             mode="outlined"
-            style={{ marginBottom: 10 }}
-            left={<TextInput.Icon name="lock" />}
+            style={{ marginTop: 20, marginBottom: 10}}
           />
           <Button
             mode="contained"
@@ -112,10 +112,13 @@ const Profil = () => {
             onPress={handleSignOut}
             icon="logout"
             color={theme.colors.primary}
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 50 }}
           >
             Se déconnecter
           </Button>
+        </View>
+        <View style={{ flexGrow: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 50 }}>
+          <Image source={logoImage} style={{ width: 300, height: 300 }} />
         </View>
       </ScrollView>
     </PaperProvider>
