@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-import { auth } from '../firebase';
+import { auth } from '../firebase'; // Ensure the correct import path
+import { Image } from 'react-native';
 
 const ForgotPass = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -9,7 +10,7 @@ const ForgotPass = ({ navigation }) => {
     try {
       await auth.sendPasswordResetEmail(email);
       alert('Un email de réinitialisation de mot de passe a été envoyé à votre adresse email.');
-      navigation.goBack(); // Retour à l'écran de connexion
+      navigation.goBack(); // Go back to the login screen
     } catch (error) {
       console.error('Error sending reset email:', error);
       alert('Une erreur est survenue. Veuillez réessayer.');
@@ -18,12 +19,7 @@ const ForgotPass = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-
-    {/* Bouton de retour */}
-    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>←</Text> {/* Utilisez une flèche Unicode ou un caractère similaire */}
-      </TouchableOpacity>
-
+      <Image source={require('../images/logo.png')} style={styles.logo} />
       <Text style={styles.txt}>Réinitialisez votre MDP !</Text>
       <TextInput
         style={styles.email}
@@ -42,53 +38,41 @@ const ForgotPass = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#47BDC1',
+    backgroundColor: '#011e36', // Dark blue background to match the theme
     alignItems: 'center',
   },
-
-  backButton: {
-    position: 'absolute',
-    top: 60, // Ajustez selon la maquette de votre application
-    left: 20, // Ajustez selon la maquette de votre application
-    padding: 10,
-  },
-  backButtonText: {
-    fontSize: 24, // Ajustez la taille si nécessaire
-    color: '#FFF', // Choisissez une couleur qui se démarque sur votre fond
-  },
-  
   txt: {
-    fontSize: 24, // Taille de police accrue
-    color: '#ffffff', // Couleur de police
-    marginBottom: 45,
-    fontWeight: 'bold', // Gras
-    textShadowColor: 'rgba(0, 0, 0, 0.75)', // Ombre du texte
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10
+    fontSize: 24,
+    color: '#03a770', // White text color for consistency
+    marginBottom: 25,
+    fontWeight: 'bold',
   },
   email: {
     width: 245,
-    fontStyle: 'italic',
     height: 45,
     textAlign: 'center',
     marginBottom: 25,
-    borderBottomLeftRadius: 14,
-    borderTopRightRadius: 14,
-    backgroundColor: 'white',
+    borderBottomRightRadius: 14,
+    borderTopLeftRadius: 14,
+    backgroundColor: '#ffffff', // White background for input fields
   },
   boutonSend: {
-    borderColor: '#0782F9',
+    backgroundColor: '#38d2aa', // Button background color to match the LoginScreen and Register styles
     padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'blue',
     width: 160,
-    marginTop: 15,
     alignItems: 'center',
+    borderRadius: 10,
   },
   submit: {
-    color: 'white',
+    color: '#ffffff', // White text color for the button text
   },
+  logo: {
+    marginTop:200,
+    height: 120, // Adjust the size as needed
+    width: 120, // Adjust the size as needed
+    resizeMode: 'contain', // This makes sure the logo is scaled properly
+    alignSelf: 'center', // This aligns the logo to the center
+}
 });
 
 export default ForgotPass;
