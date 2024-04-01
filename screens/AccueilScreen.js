@@ -3,6 +3,9 @@ import { StyleSheet, Text, ScrollView, Button, View } from 'react-native';
 import { auth } from '../firebase';
 import { useNavigation } from '@react-navigation/native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import { Image } from 'react-native';
+
+import logoImage from '../images/photo1.png';
 
 const AccueilScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -35,67 +38,65 @@ const AccueilScreen = () => {
   
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.phraseAccueil}>Bienvenue chez Solutions Organix !</Text>
+          
+        <Text style={styles.name}>{user ? `Bonjour ${user.displayName} !` : "Bonjour !"}</Text>
   
-        <Text style= {styles.name}>(Re) Bonjour {user.displayName} ! </Text>
-  
-        <Text style = {styles.introduction}>
+        <Text style={styles.introduction}>
           Nous sommes désolés d'apprendre que votre médicament n'est pas disponible,
-          ne perdez plus de temps et déclarez le comme non-présent dans votre pharmacie ! 
+          ne perdez plus de temps et déclarez-le comme non-présent dans votre pharmacie ! 
         </Text>
-    </View>
+
+        <Image source={logoImage} style={styles.logo} />
+
+    </ScrollView>
   );
-  
 };
 
 export default AccueilScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginTop:30,
-    justifyContent :"flex-start",
-    margin:25,
+    flexGrow: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#011e36',
   },
   phraseAccueil: {
-    fontSize: 45,
-    marginBottom: 40,
-    backgroundColor:'',
-    width:'100%',
-    textAlign:'center',
+    fontSize: 30, // Slightly larger text
+    color: '#03a770',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    paddingHorizontal: 20,
+    marginTop: 20, // Adjust spacing as needed
+    marginBottom: 50,
   },
-  name:{
-    marginBottom:35,
+  logo: {
+    width: 200, // Adjust size as needed
+    height: 200, // Adjust size as needed
+    resizeMode: 'contain',
+    marginVertical: 10, // Adjust spacing as needed
   },
-  introduction:{
-    width: 220,
-    borderColor:'red',
-    borderWidth:1,
-    justifyContent:'center',
-    textAlign:'justify',
+  name: {
+    fontSize: 22, // Slightly larger text
+    color: '#ffffff',
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  deco: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  button: {
-    alignItems: 'center',
-    width: '50%',
-    backgroundColor: '#0782F9',
-    padding: 15,
+  introduction: {
+    fontSize: 18, // Slightly larger text
+    color: '#ffffff',
+    backgroundColor: '#38d2aa',
+    padding: 20,
     borderRadius: 10,
-    marginTop: 40,
+    textAlign: 'justify',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginHorizontal: 20,
+    marginBottom: 30,
   },
-  barcode: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 300,
-    width: 300,
-    overflow: 'hidden',
-    borderRadius: 30,
-    backgroundColor: 'tomato',
-  }
 });
