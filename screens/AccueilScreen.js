@@ -69,12 +69,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     paddingHorizontal: 20,
-    marginTop: 20, // Adjust spacing as needed
+    marginTop: 50, // Adjust spacing as needed
     marginBottom: 50,
   },
   logo: {
-    width: 200, // Adjust size as needed
-    height: 200, // Adjust size as needed
+    width: 300, // Adjust size as needed
+    height: 300, // Adjust size as needed
     resizeMode: 'contain',
     marginVertical: 10, // Adjust spacing as needed
   },
@@ -97,6 +97,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     marginHorizontal: 20,
-    marginBottom: 30,
+    marginBottom: 10,
   },
 });
