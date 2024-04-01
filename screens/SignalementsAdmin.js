@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert, TouchableOpacity } from 'react-native';
 import { getAuth } from 'firebase/auth';
 import { getDatabase, ref, onValue } from 'firebase/database';
+import { useNavigation } from '@react-navigation/native';
+import { auth } from '../firebase';
+
 
 const SignalementAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [signalements, setSignalements] = useState([]);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const db = getDatabase();
@@ -54,6 +59,36 @@ const SignalementAdmin = () => {
     });
   }, []);
 
+  const handleSignOut = () => {
+    auth
+      .signOut()
+      .then(() => {
+        navigation.replace('Login');
+      })
+      .catch((error) => alert(error.message));
+  };
+
+  const confirmLogout = () => {
+    Alert.alert(
+        'Se déconnecter',
+        'Êtes-vous sûr de vouloir vous déconnecter ?',
+        [
+            {
+                text: 'Annuler',
+                onPress: () => {},
+                style: 'cancel',
+            },
+            {
+                text: 'Confirmer',
+                onPress: () => {
+                    handleSignOut();
+                },
+            },
+        ],
+    );
+    };
+
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -63,22 +98,33 @@ const SignalementAdmin = () => {
   }
 
   return (
-    <FlatList
-      data={signalements}
-      keyExtractor={item => item.id}
-      renderItem={({ item }) => (
-        <View style={styles.itemContainer}>
-          <Text style={styles.itemText}>Médicament: {item.medicament}</Text>
-          <Text style={styles.itemText}>Prénom: {item.prenom}</Text>
-          <Text style={styles.itemText}>Âge: {item.age}</Text>
-        </View>
-      )}
-      style={styles.list}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={signalements}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.itemContainer}>
+            <Text style={styles.itemText}>Médicament: {item.medicament}</Text>
+            <Text style={styles.itemText}>Prénom: {item.prenom}</Text>
+            <Text style={styles.itemText}>Âge: {item.age}</Text>
+          </View>
+        )}
+        style={styles.list}
+      />
+      <View style={styles.deco}>
+        <TouchableOpacity style={styles.button} onPress={confirmLogout}>
+          <Text style={{color:'white'}}>Se déconnecter</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#e8f5e9',
+  },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
@@ -90,7 +136,7 @@ const styles = StyleSheet.create({
     color: '#388e3c',
   },
   list: {
-    backgroundColor: '#e8f5e9',
+    marginTop:40,
   },
   itemContainer: {
     paddingVertical: 20,
@@ -113,6 +159,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#2e7d32',
     marginBottom: 5,
+  },
+  deco: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#1976d2',
+    padding: 10,
+    borderRadius: 5,
   },
 });
 
