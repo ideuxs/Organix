@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { getAuth } from "firebase/auth"; // Assurez-vous que cette importation est correcte
-import { getDatabase, ref, set , push} from "firebase/database";
+import { getAuth } from "firebase/auth";
+import { getDatabase, ref, push } from "firebase/database";
+import { useNavigation } from '@react-navigation/native';
 
-// Importez directement les données JSON
 import cipData from '../resultat.json';
 import cisData from '../resultats.json';
 
@@ -22,13 +22,11 @@ function findMedicineNameByCIP(cip) {
 const ScanQr = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [text, setText] = useState('Not yet scanned');
-  const [medicineName, setMedicineName] = useState(''); // État pour stocker le nom du médicament
-  const [cip, setCip] = useState(''); // État pour stocker le code CIP
-
-
+  const [medicineName, setMedicineName] = useState('');
+  const [cip, setCip] = useState('');
   const auth = getAuth();
   const user = auth.currentUser;
+  const navigation = useNavigation();
 
   useEffect(() => {
     const askForCameraPermission = async () => {
@@ -40,64 +38,55 @@ const ScanQr = () => {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    const cipCode = data.substring(3, 16); // Assurez-vous que cette logique d'extraction est correcte pour votre cas d'utilisation
-    setCip(cipCode); // Mise à jour de l'état avec le code CIP
-    setText(cipCode); // Cela semble être votre tentative de suivre le CIP, mais vous ne l'utilisez pas ensuite
-    console.log('Type : ' + type + '\nCIP : ' + cipCode);
+    const cipCode = data.substring(3, 16);
+    setCip(cipCode);
     const medicineName = findMedicineNameByCIP(cipCode);
     setMedicineName(medicineName);
-    console.log('Nom du médicament :', medicineName);
-};
+  };
 
-  // Fonction pour le bouton "Signaler", qui ne fait rien pour le moment
   const handleReport = () => {
-    console.log("Signalement enregistré");
     writeSignalementData(user.uid, medicineName, cip);
-};
+    navigation.navigate('Accueil');
+  };
 
-  // Affichage conditionnel en fonction des permissions et du scan
-  if (hasPermission === null) {
-    return <View style={styles.container}><Text>Veuillez scanner pour signaler</Text></View>;
-  }
-  if (hasPermission === false) {
-    return (
-      <View style={styles.container}>
-        <Text>Pas d'accès à la caméra</Text>
-        <Button title="Autoriser la caméra" onPress={() => setHasPermission(null)} />
-      </View>
-    );
-  }
+  // Modification ici: Réinitialise scanned et medicineName
+  const handleScanAgain = () => {
+    setScanned(false);
+    setMedicineName(''); // Réinitialise le nom du médicament pour permettre un nouveau scan
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.phraseAccueil}>Recherche via</Text>
+      <Text style={styles.intro}>Scanner pour signaler :</Text>
       <View style={styles.barcodeBox}>
         <BarCodeScanner onBarCodeScanned={scanned ? undefined : handleBarCodeScanned} style={StyleSheet.absoluteFillObject} />
       </View>
-      {medicineName ? <Text style={styles.medicineName}>{medicineName}</Text> : null}
-      <Button title="Scanner à nouveau" onPress={() => setScanned(false)} color="tomato" />
-      {scanned && medicineName && <Button title="Signaler" onPress={handleReport} />}
+      
+      <TouchableOpacity style={[styles.button, styles.buttonSignaler]} onPress={handleScanAgain}>
+        <Text style={styles.buttonText}>Scanner à nouveau</Text>
+      </TouchableOpacity>
+
+      <View style={styles.medicineContainer}>
+        {medicineName ? <Text style={styles.medicineNameLabel}>Nom du médicament:</Text> : null}
+        {medicineName ? <Text style={styles.medicineName}>{medicineName}</Text> : null}
+        {scanned && medicineName && <TouchableOpacity style={[styles.button, {marginTop: 30}]} onPress={handleReport}>
+          <Text style={styles.buttonText}>Signaler</Text>
+        </TouchableOpacity>}
+      </View>
     </View>
   );
 };
 
 function writeSignalementData(userId, nomMedic, cipCode) {
-  if (!userId || !nomMedic || !cipCode) {
-    console.error('Les données fournies sont incomplètes.');
-    return;
-  }
-
   const db = getDatabase();
   const signalementRef = ref(db, 'signalements');
   const newSignalementRef = push(signalementRef);
   set(newSignalementRef, {
-    userId,
+    userId: userId,
     medicament: nomMedic,
     cip: cipCode,
-    methode: "codeCIP"
+    methode: "qrCode"
   });
-
-  navigation.navigate("Accueil");
 }
 
 const styles = StyleSheet.create({
@@ -105,6 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#101c34', // Changement du fond
   },
   barcodeBox: {
     alignItems: 'center',
@@ -118,10 +108,49 @@ const styles = StyleSheet.create({
   phraseAccueil: {
     fontSize: 20,
     marginBottom: 20,
+    color: '#ffffff', // Texte blanc pour contraste
+  },
+  button: {
+    backgroundColor: '#38d2aa', // Green button background color
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10, // Rounded corners for buttons
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#ffffff', // White text for better readability on buttons
+    fontSize: 18,
+  },
+  buttonSignaler: {
+    marginTop: 30, // Additional margin for the "Signaler" button
+  },
+  medicineContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  medicineNameLabel: {
+    fontSize: 16,
+    color: '#03a770', // Green text color to match the theme
+    textAlign: 'center',
   },
   medicineName: {
-    fontSize: 18,
-    margin: 10,
+    fontSize: 24,
+    color: '#ffffff', // White text for better readability
+    textAlign: 'center',
+    marginTop: 5,
+  },
+  intro: {
+    fontSize: 25,
+    textAlign: 'center',
+    color: '#03a770', // Text color from your logo
+    fontWeight: 'bold',
+    marginBottom: 25,
+  },
+  logo: {
+    width: 150, // Adjust size as needed
+    height: 150, // Adjust size as needed
+    resizeMode: 'contain',
+    marginVertical: 10, // Adjust spacing as needed
   },
 });
 
