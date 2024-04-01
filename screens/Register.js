@@ -1,177 +1,130 @@
-import { useNavigation } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState }from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TextInput, View, Button, Text, TouchableOpacity } from 'react-native';
-import {auth} from '../firebase'
+import { useNavigation } from '@react-navigation/native';
+import { auth } from '../firebase'; // Ensure the correct path
 import { getDatabase, ref, set } from "firebase/database";
+import { Image } from 'react-native';
+
 
 const Register = () => {
-
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [age, setAge] = useState('');
 
-    const navigation = useNavigation()
+    const navigation = useNavigation();
 
     const signIn = () => {
         navigation.navigate('Login');
     };
-    
-    const handleSignUp = async () => {
-        /*auth.createUserWithEmailAndPassword(email, password)
-        .then(userCrendentials => {
-            const user = userCrendentials.user;
-            console.log(email);
-        })
-        .catch(error => {
-            
-        });*/
 
+    const handleSignUp = async () => {
         try {
             await auth.createUserWithEmailAndPassword(email, password);
-            
             const user = auth.currentUser;
             writeUserData(user.uid, name, email, age);
-            // Stocker le nom dans le profil utilisateur
             await user.updateProfile({
               displayName: name,
             });
         } catch (error) {
-            if (error.code === 'auth/email-already-in-use') {
-                // L'adresse e-mail est déjà utilisée, informez l'utilisateur
-                alert('Cette adresse e-mail est déjà associée à un compte existant.');
-        } else {
-                // Une autre erreur s'est produite, affichez le message d'erreur générique
-                console.log(error);
-                alert("Veuillez saisir quelque chose !");
-            }
-          }
-
-        
+            console.error(error);
+            alert("Erreur lors de l'inscription. Veuillez réessayer.");
+        }
     };
+
     return (
-    <View style={styles.div}>
-        <View style={styles.bienvenue}>
-            <Text style={styles.intro}> 
+        <View style={styles.div}>
+            <Image source={require('../images/logo.png')} style={styles.logo} />
+            <Text style={styles.intro}>
                 Bienvenue dans la page d'inscription !
             </Text>
+            <TextInput
+                style={styles.input1}
+                placeholder="Votre nom"
+                value={name}
+                onChangeText={setName}
+            />
+            <TextInput
+                style={styles.input1}
+                placeholder="Votre age"
+                value={age}
+                onChangeText={setAge}
+            />
+            <TextInput
+                style={styles.input1}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+            />
+            <TextInput
+                style={styles.input1}
+                placeholder="Mot de passe"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+                <Text style={styles.buttonText}>S'inscrire</Text>
+            </TouchableOpacity>
+            <Text style={styles.switchText} onPress={signIn}>
+                Déjà un compte ? Se connecter
+            </Text>
         </View>
-        <View >
-        <TextInput style={styles.email}
-            placeholder="Votre nom"
-            value={name}
-            onChangeText={(text) => setName(text)}
-        />
-        <TextInput style={styles.email}
-            placeholder="Votre age"
-            value={age}
-            onChangeText={(text) => setAge(text)}
-        />
-        <TextInput style={styles.email}
-        placeholder="Email"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        />
-        <TextInput style={styles.mdp}
-            placeholder="Mot de passe"
-            secureTextEntry
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-        />
-        <TouchableOpacity style={styles.boutonInscr} onPress={handleSignUp}>
-            <Text style={styles.text}>S'inscrire</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boutonCo} onPress={signIn}>
-            <Text>Se connecter</Text>
-        </TouchableOpacity>
-        </View>
-    </View>
-    )
-}
+    );
+};
 
 function writeUserData(userId, firstName, email, age) {
     const db = getDatabase();
     set(ref(db, 'users/' + userId), {
-      prenom: firstName,
-      email: email, 
-      age: age
+      name: firstName,
+      email: email,
+      age: age,
     });
-  }
-
-
+}
 
 const styles = StyleSheet.create({
     div: {
         flex: 1,
         justifyContent: 'center',
+        backgroundColor: '#011e36', // Background color to match LoginScreen
         alignItems: 'center',
-        backgroundColor: '#47BDC1',
-
     },
-    text:{
-        color:'white',
-    },
-    phraseAccueil: {
-        fontSize: 25,
-    },
-    deco: {
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 16,
-    },
-    boutonCo: {
-        borderColor:'#0782F9',
-        padding:10,
-        marginLeft: 40,
-        borderRadius:10,
-        backgroundColor:'white',
-        width:160,
-        marginTop:15,
-        alignItems:'center',
-    },
-    boutonInscr:{
-        borderColor:'#0782F9',
-        padding:10,
-        marginLeft: 40,
-        borderRadius:10,
-        backgroundColor:'black',
-        width:160,
-        marginTop:15,
-        alignItems:'center',
-    },
-    email:{
-        width: 245,
-        
-        fontStyle:'italic',
-        height: 45,
-        textAlign:'center',
-        marginBottom: 25,
-        borderBottomLeftRadius: 14,
-        borderTopRightRadius:14,
-        backgroundColor:'white'
-    },
-    mdp:{
-        fontStyle:'italic',
+    input1: {
         width: 245,
         height: 45,
-        textAlign:'center',
+        textAlign: 'center',
         marginBottom: 25,
-        borderBottomLeftRadius: 14,
-        borderTopRightRadius:14,
-        backgroundColor:'white'
+        backgroundColor: '#ffffff', // White background for input fields
+        borderBottomRightRadius: 14,
+        borderTopLeftRadius: 14,
     },
-    bienvenue:{
-        marginBottom: 80,
-        width: 210,   
+    button: {
+        backgroundColor: '#38d2aa', // Button background color to match LoginScreen
+        padding: 10,
+        width: 160,
+        alignItems: 'center',
+        borderRadius: 10,
     },
-    intro:{
-        fontSize : 27,
-        textAlign:'center',
-        color:'white',
-        fontWeight:'bold',
+    buttonText: {
+        color: '#ffffff', // White text color for buttons
+    },
+    intro: {
+        marginBottom: 20,
+        fontSize: 20,
+        textAlign: 'center',
+        color: '#03a770', // Text color to match LoginScreen
+        fontWeight: 'bold',
+    },
+    switchText: {
+        color: '#03a770', // Text color to match LoginScreen, for switching between login and registration
+        marginTop: 15,
+    },
+    logo: {
+        height: 120, // Adjust the size as needed
+        width: 120, // Adjust the size as needed
+        resizeMode: 'contain', // This makes sure the logo is scaled properly
+        alignSelf: 'center', // This aligns the logo to the center
     }
-
 });
 
 export default Register;
