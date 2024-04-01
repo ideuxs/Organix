@@ -1,52 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
-import {auth} from '../firebase'
-import { getDatabase, ref, set , push} from "firebase/database";
+import { auth } from '../firebase';
+import { getDatabase, ref, set, push } from "firebase/database";
+import { Image } from 'react-native';
 
+import logoImage from '../images/logo.png'; // Assurez-vous que le chemin d'accès est correct
+import cipData from '../resultat.json'; // Les données fictives pour la démonstration
+import cisData from '../resultats.json'; // Les données fictives pour la démonstration
 
 function searchMedicamentByCIS(cip) {
-    // Rechercher le médicament correspondant dans les données CIP
-    const cipMedicine = cipData.find(item => item.codeCIP === cip);
-
-    // Si le médicament correspondant est trouvé dans les données CIP
-    if (cipMedicine) {
-      // Rechercher le nom du médicament correspondant dans les données CIS
-      const cisMedicine = cisData.find(item => item.code === cipMedicine.code);
-  
-      // Si le médicament correspondant est trouvé dans les données CIS
-      if (cisMedicine) {
-        return cisMedicine.nom; // Retourner le nom du médicament
-      }
+  const cipMedicine = cipData.find(item => item.codeCIP === cip);
+  if (cipMedicine) {
+    const cisMedicine = cisData.find(item => item.code === cipMedicine.code);
+    if (cisMedicine) {
+      return cisMedicine.nom;
     }
-  
-    return null; // Retourner null si le médicament n'est pas trouvé
-  
+  }
+  return null;
 }
-
-import cipData from '../resultat.json';
-import cisData from '../resultats.json';
 
 const RechercheCode = () => {
   const [cipCode, setCipCode] = useState('');
   const [medicineName, setMedicineName] = useState('');
+  const [found, setFound] = useState(true); // Nouvel état pour suivre si un médicament a été trouvé
 
   const user = auth.currentUser;
 
-  const fetchMedicineName = async () => {
-    
-    const medicineName = searchMedicamentByCIS(cipCode);
-    
-    setMedicineName(medicineName);
-    
+  const fetchMedicineName = () => {
+    const name = searchMedicamentByCIS(cipCode);
+    setMedicineName(name);
+    setFound(!!name); // Met à jour l'état `found` basé sur si un nom a été trouvé ou non
   };
 
   return (
     <View style={styles.container}>
+      <Image source={logoImage} style={styles.logo} />
+      <Text style={styles.intro}>Recherche via code CIP :</Text>
       <TextInput
         style={styles.input}
         placeholder="Entrez le code CIP"
-        placeholderTextColor="#5e8b7e" // Une teinte de vert plus foncé pour le placeholder
         value={cipCode}
         onChangeText={setCipCode}
         keyboardType="numeric"
@@ -59,13 +51,14 @@ const RechercheCode = () => {
           <Text style={styles.medicineNameLabel}>Nom du médicament:</Text>
           <Text style={styles.medicineName}>{medicineName}</Text>
           <TouchableOpacity
-  style={[styles.button, styles.buttonSignaler]}
-  onPress={() => writeSignalementData(user.uid, medicineName, cipCode)} // Utilisation d'une fonction anonyme
->
-  <Text style={styles.buttonText}>Signaler</Text>
-</TouchableOpacity>
-
+            style={[styles.button, styles.buttonSignaler]}
+            onPress={() => writeSignalementData(user.uid, medicineName, cipCode)}
+          >
+            <Text style={styles.buttonText}>Signaler</Text>
+          </TouchableOpacity>
         </View>
+      ) : found === false ? ( // Afficher ce bloc si un médicament n'a pas été trouvé
+        <Text style={styles.notFound}>Aucun médicament trouvé.</Text>
       ) : null}
     </View>
   );
@@ -86,38 +79,47 @@ function writeSignalementData(userId, nomMedic, cipCode) {
     cip: cipCode,
     methode: "codeCIP"
   });
+
+  navigate.navigation('Accueil');
 }
 
 const styles = StyleSheet.create({
+  notFound: {
+    fontSize: 18,
+    color: '#ffffff', // Blanc pour une meilleure lisibilité
+    marginTop: 20,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8', // Un fond légèrement gris, propre et professionnel
+    backgroundColor: '#011e36', // Dark blue background color
     alignItems: 'center',
     justifyContent: 'center',
   },
   input: {
     width: '90%',
-    backgroundColor: 'white', // Fond blanc pour l'input
+    backgroundColor: '#ffffff', // White background for input fields
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 5,
+    borderBottomLeftRadius: 14,
+    borderTopRightRadius: 14,
     borderWidth: 1,
-    borderColor: '#5e8b7e', // Une bordure verte
+    borderColor: '#38d2aa', // Border color to match button color
     marginBottom: 20,
     fontSize: 18,
   },
   button: {
-    backgroundColor: '#5e8b7e', // Vert de la pharmacie
+    backgroundColor: '#38d2aa', // Green button background color
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 10, // Rounded corners for buttons
+    marginBottom: 20,
   },
   buttonText: {
-    color: 'white', // Texte blanc pour contraster avec le bouton vert
+    color: '#ffffff', // White text for better readability on buttons
     fontSize: 18,
   },
   buttonSignaler: {
-    marginTop: 30,
+    marginTop: 30, // Additional margin for the "Signaler" button
   },
   medicineContainer: {
     marginTop: 20,
@@ -125,13 +127,27 @@ const styles = StyleSheet.create({
   },
   medicineNameLabel: {
     fontSize: 16,
-    color: '#5e8b7e', // Utiliser le vert pour le label
+    color: '#03a770', // Green text color to match the theme
     textAlign: 'center',
   },
   medicineName: {
     fontSize: 24,
-    color: '#3a5a40', // Un vert plus sombre pour le nom du médicament
+    color: '#ffffff', // White text for better readability
     textAlign: 'center',
+    marginTop: 5,
+  },
+  intro: {
+    fontSize: 25,
+    textAlign: 'center',
+    color: '#03a770', // Text color from your logo
+    fontWeight: 'bold',
+    marginBottom: 25,
+  },
+  logo: {
+    width: 150, // Adjust size as needed
+    height: 150, // Adjust size as needed
+    resizeMode: 'contain',
+    marginVertical: 10, // Adjust spacing as needed
   },
 });
 
