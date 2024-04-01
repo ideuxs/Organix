@@ -20,15 +20,6 @@ import AnalyseAdmin from './screens/AnalyseAdmin';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Tab Navigator pour les utilisateurs admin
-const AdminTabNav = () => (
-  <Tab.Navigator>
-    <Tab.Screen name="AccueilAdmin" component={AccueilAdmin} />
-    <Tab.Screen name="Analyse" component={AnalyseAdmin} />
-    <Tab.Screen name="Signalements" component={SignalementAdmin} />
-  </Tab.Navigator>
-);
-
 export default function App() {
   return (
     <NavigationContainer>
@@ -62,11 +53,11 @@ const TabNav = () => (
     />
     <Tab.Screen name="Rechercher" component={RechercheScreen} 
       options={{
-        title:"Recherchez",
+        title:"Signaler",
         headerShown:false, 
         tabBarIcon: ({ focused }) => (
           <Image
-            source={require('./images/qr-code.png')}
+            source={require('./images/signaler.png')}
             style={{ width: 30, height: 30 }}/>
         )
       }}
@@ -78,6 +69,44 @@ const TabNav = () => (
         tabBarIcon: ({ focused }) => (
           <Image
             source={require('./images/utilisateur.png')}
+            style={{ width: 30, height: 30 }}/>
+        )
+      }}
+    />
+  </Tab.Navigator>
+);
+
+const AdminTabNav = () => (
+  <Tab.Navigator>
+    <Tab.Screen name="Accueil" component={AccueilAdmin} 
+      options={{
+        title:"Accueil",
+        headerShown:false,
+        tabBarIcon: ({ focused }) => (
+          <Image
+            source={require('./images/accueil.png')}
+            style={{ width: 30, height: 30 }}/>
+        )
+      }}
+    />
+    <Tab.Screen name="Analyse" component={AnalyseAdmin}
+      options={{
+        title:"Analyse",
+        headerShown:false,
+        tabBarIcon: ({ focused }) => (
+          <Image
+            source={require('./images/analyse.png')}
+            style={{ width: 30, height: 30 }}/>
+        )
+      }}
+    />
+    <Tab.Screen name="Signalement" component={SignalementAdmin}
+      options={{
+        title:"Signalement",
+        headerShown:false,
+        tabBarIcon: ({ focused }) => (
+          <Image
+            source={require('./images/signalements.png')}
             style={{ width: 30, height: 30 }}/>
         )
       }}
