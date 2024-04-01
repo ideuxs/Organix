@@ -80,7 +80,7 @@ const Profil = () => {
             value={email}
             onChangeText={setEmail}
             mode="outlined"
-            style={{ marginTop: 20, marginBottom: 10}}
+            style={{ marginTop: 20, marginBottom: 10, backgroundColor: 'white'}}
           />
           <Button
             mode="contained"
@@ -97,7 +97,7 @@ const Profil = () => {
             onChangeText={setPassword}
             secureTextEntry
             mode="outlined"
-            style={{ marginTop: 20, marginBottom: 10}}
+            style={{ marginTop: 20, marginBottom: 10, backgroundColor: 'white'}}
           />
           <Button
             mode="contained"
